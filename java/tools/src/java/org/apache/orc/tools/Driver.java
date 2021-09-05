@@ -90,7 +90,7 @@ public class Driver {
       System.err.println("   count - recursively find *.orc and print the number of rows");
       System.err.println("   data - print the data from the ORC file");
       System.err.println("   json-schema - scan JSON files to determine their schema");
-      System.err.println("   key - print information about the keys");
+      System.err.println("   key - print information about the encryption keys");
       System.err.println("   meta - print the metadata about the ORC file");
       System.err.println("   scan - scan the ORC file");
       System.err.println("   version - print the version of this ORC tool");

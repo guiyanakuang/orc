@@ -29,24 +29,31 @@ import org.apache.orc.Reader;
 import java.io.IOException;
 
 /**
- * Given a set of paths, finds all of the "*.orc" files under them and prints the number of rows in each file.
+ * Given a set of paths, finds all of the "*.orc" files under them
+ * and prints the number of rows in each file.
  */
 public class RowCount {
   public static void main(Configuration conf, String[] args) throws IOException {
     int bad = 0;
-    for(String root: args) {
-      Path rootPath = new Path(root);
-      FileSystem fs = rootPath.getFileSystem(conf);
-      for(RemoteIterator<LocatedFileStatus> itr = fs.listFiles(rootPath, true); itr.hasNext(); ) {
-        LocatedFileStatus status = itr.next();
-        if (status.isFile() && status.getPath().getName().endsWith(".orc")) {
-          Path filename = status.getPath();
-          try (Reader reader = OrcFile.createReader(filename, OrcFile.readerOptions(conf))) {
-            System.out.println(String.format("%s %d",
-                filename.toString(), reader.getNumberOfRows()));
-          } catch (IOException ioe) {
-            bad += 1;
-            System.err.println("Failed to read " + filename);
+    if (args.length == 0) {
+      System.err.println("Please enter file path");
+      bad = 1;
+    }
+    else {
+      for (String root : args) {
+        Path rootPath = new Path(root);
+        FileSystem fs = rootPath.getFileSystem(conf);
+        for (RemoteIterator<LocatedFileStatus> itr =
+             fs.listFiles(rootPath, true); itr.hasNext();) {
+          LocatedFileStatus status = itr.next();
+          if (status.isFile() && status.getPath().getName().endsWith(".orc")) {
+            Path filename = status.getPath();
+            try (Reader reader = OrcFile.createReader(filename, OrcFile.readerOptions(conf))) {
+              System.out.printf("%s %d%n", filename.toString(), reader.getNumberOfRows());
+            } catch (IOException ioe) {
+              bad += 1;
+              System.err.println("Failed to read " + filename);
+            }
           }
         }
       }
