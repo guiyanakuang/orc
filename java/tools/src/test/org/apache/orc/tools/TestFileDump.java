@@ -709,6 +709,6 @@ public class TestFileDump {
     byte[] bytes = ("OO" + OrcFile.MAGIC).getBytes(StandardCharsets.UTF_8);
     byte[] pattern = OrcFile.MAGIC.getBytes(StandardCharsets.UTF_8);
 
-    assertEquals(FileDump.indexOf(bytes, pattern, 1), 2);
+    assertEquals(2, FileDump.indexOf(bytes, pattern, 1));
   }
 }
