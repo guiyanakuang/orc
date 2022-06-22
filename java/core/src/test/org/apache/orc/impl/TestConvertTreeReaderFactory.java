@@ -31,6 +31,7 @@ import org.apache.hadoop.hive.ql.exec.vector.ListColumnVector;
 import org.apache.hadoop.hive.ql.exec.vector.LongColumnVector;
 import org.apache.hadoop.hive.ql.exec.vector.TimestampColumnVector;
 import org.apache.hadoop.hive.ql.exec.vector.VectorizedRowBatch;
+import org.apache.orc.OrcConf;
 import org.apache.orc.OrcFile;
 import org.apache.orc.Reader;
 import org.apache.orc.RecordReader;
@@ -386,5 +387,50 @@ public class TestConvertTreeReaderFactory {
 
     assertEquals("totalLength:-1 is a negative number.",
             batchSizeOneException.getMessage());
+  }
+
+  @Test
+  public void testingNonFixedLengthStripe() throws IOException {
+    conf = new Configuration();
+    conf.setInt(OrcConf.ROWS_BETWEEN_CHECKS.getAttribute(), 20);
+    conf.setInt(OrcConf.STRIPE_ROW_COUNT.getAttribute(), 25);
+    fs = FileSystem.getLocal(conf);
+    fs.setWorkingDirectory(workDir);
+    TypeDescription schema =
+        TypeDescription.fromString("struct<x:string>");
+
+    Writer w = OrcFile.createWriter(testFilePath, OrcFile.writerOptions(conf)
+        .setSchema(schema)
+        .overwrite(true));
+
+    VectorizedRowBatch batch = schema.createRowBatch();
+    BytesColumnVector x = (BytesColumnVector) batch.cols[0];
+
+    for(int r = 0; r < 27; ++r) {
+      int row = batch.size++;
+      byte[] buffer = String.valueOf(r).getBytes(StandardCharsets.UTF_8);
+      x.setRef(row, buffer, 0, buffer.length);
+    }
+    w.addRowBatch(batch);
+
+    for(int r = 0; r < 30; ++r) {
+      int row = batch.size++;
+      byte[] buffer = String.valueOf(r).getBytes(StandardCharsets.UTF_8);
+      x.setRef(row, buffer, 0, buffer.length);
+    }
+    w.addRowBatch(batch);
+    w.close();
+
+
+    Reader reader = OrcFile.createReader(testFilePath, OrcFile.readerOptions(conf));
+
+    TypeDescription readSchema = TypeDescription.fromString("struct<x:int>");
+    batch = readSchema.createRowBatch();
+    RecordReader rowIterator = reader.rows(reader.options()
+        .schema(readSchema));
+    while (rowIterator.nextBatch(batch)) {
+      assertTrue(true);
+    }
+    rowIterator.close();
   }
 }
