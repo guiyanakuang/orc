@@ -64,11 +64,6 @@
       <artifactId>hive-storage-api</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-simple</artifactId>
-      <scope>runtime</scope>
-    </dependency>
   </dependencies>
 
   <build>
@@ -117,7 +112,6 @@
             <ignoredUnusedDeclaredDependency>com.google.guava:guava</ignoredUnusedDeclaredDependency>
             <ignoredUnusedDeclaredDependency>org.apache.hadoop:hadoop-hdfs</ignoredUnusedDeclaredDependency>
             <ignoredUnusedDeclaredDependency>org.apache.hadoop:hadoop-common</ignoredUnusedDeclaredDependency>
-            <ignoredUnusedDeclaredDependency>org.slf4j:slf4j-simple</ignoredUnusedDeclaredDependency>
           </ignoredUnusedDeclaredDependencies>
           <ignoredDependencies>
             <ignoredDependency>org.apache.hadoop:hadoop-client-api</ignoredDependency>
